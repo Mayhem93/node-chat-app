@@ -50,85 +50,72 @@ $(document).ready(function(){
 		}
 	});
 
-	var tabClick = function(e) {
-		clickedTab = e.target.innerHTML;
-
-		//right mouse click, closes it
-		if (e.ctrlKey && clickedTab != 'Main') {
-
-			$('#pm_'+clickedTab).remove();
-			$(e.target).remove();
-
-			windowToShow = $('#tabs > button:last-child').attr('data-active', '1');
-
-			if (windowToShow.attr('data-unavailable') != '1') {
-				windowToShow.css({color: 'red'});
-			}
-
-			windowToShow = windowToShow[0].innerHTML;
-
-			if (windowToShow == 'Main')
-				$('#content').css({display: 'block'});
-			else
-				$('#pm_'+windowToShow).css({display: 'block'});
-
-			activeTab = windowToShow;
-
-			return ;
-		}
-
-		if (clickedTab == activeTab)
+	var switchChatTabs = function(to) {
+		if (to == activeTab)
 			return ;
 
-		$(e.target).css({fontWeight: "normal"});
-
-		if (clickedTab == 'Main') {
-			$('#content').css({display: 'block'});
-		} else {
-			$('#pm_'+clickedTab).css({display: 'block'});
-		}
-
-		windowToHide = $('[data-active="1"]').attr('data-active', '0');
-
-		if (windowToHide.attr('data-unavailable') != '1') {
-			windowToHide.css({color: 'white'});
-		}
-
-		if ($(e.target).attr('data-unavailable') !=1)
-			$(e.target).css({color: 'red'});
-
-		windowToHide = windowToHide[0].innerHTML;
-		$(e.target).attr('data-active', '1');
-
-		$('#pm_'+windowToHide).css({display: 'none'});
-		activeTab = clickedTab;
-	};
-
-	var nameClick = function(e) {
-		clickedChatTab = $('#chat_tab_'+ e.target.textContent);
+		escapedName = to.replace(/[^a-z0-9]/gmi, "_").replace(/\s+/g, "_");
+		clickedChatTab = $('#chat_tab_'+ escapedName);
 
 		if (!clickedChatTab.length) {
-			$('<button id="chat_tab_'+e.target.innerHTML+'">'+e.target.innerHTML+'</button>').appendTo('#tabs');
-			$('#chat_tab_'+ e.target.innerHTML).on('click', tabClick);
+			clickedChatTab = $('<button id="chat_tab_'+escapedName+'">'+to+'</button>').appendTo('#tabs').on('click', tabClick);
 		}
 
-		windowToHide = $('[data-active="1"]').attr('data-active', '0').css({color: 'white'})[0].innerHTML;
-		$('#chat_tab_'+ e.target.innerHTML).attr('data-active', '1').css({color: 'red'});
+		windowToHide = $('[data-active="1"]').attr('data-active', '0').css({color: 'white'})[0].id.replace("chat_tab_", "");
+		clickedChatTab.attr('data-active', '1').css({color: 'red'});
 		if (windowToHide == 'Main') {
 			$('#content').css({visibility: 'none'});
 		} else {
 			$('#pm_'+windowToHide).css({display: 'none'});
 		}
 
-		if ($('#pm_'+ e.target.innerHTML).length == 0)
-			$('#content').after('<div class="_pm_chat" id ="pm_'+e.target.innerHTML+'"></div>');
+		if (escapedName != 'Main' && $('#pm_'+ escapedName).length == 0)
+			$('#content').after('<div class="_pm_chat" id ="pm_'+escapedName+'"></div>');
 		else {
-			if (e.target.innerHTML == 'Main')
-				$('#pm_'+ e.target.innerHTML).css({visibility: 'none'});
+			if (escapedName == 'Main')
+				$('#pm_'+ escapedName).css({visibility: 'none'});
 			else
-				$('#pm_'+ e.target.innerHTML).css({display: 'block'});
+				$('#pm_'+ escapedName).css({display: 'block'});
 		}
-		activeTab = e.target.innerHTML;
+		activeTab = to;
+	};
+
+	var closeChatTab = function(tab) {
+		escapedName = tab.replace(/[^a-z0-9]/gmi, "_").replace(/\s+/g, "_");
+		$("#pm_"+escapedName+", #chat_tab_"+escapedName).remove();
+
+		windowToShow = $('#tabs > button:last-child').attr('data-active', '1');
+
+		if (windowToShow.attr('data-unavailable') != '1') {
+			windowToShow.css({color: 'red'});
+		}
+
+		windowToShowEscaped = windowToShow[0].innerHTML.replace(/[^a-z0-9]/gmi, "_").replace(/\s+/g, "_");
+
+		if (windowToShowEscaped == 'Main')
+			$('#content').css({display: 'block'});
+		else
+			$('#pm_'+windowToShowEscaped).css({display: 'block'});
+
+		activeTab = windowToShow[0].innerHTML;
+	};
+
+	var tabClick = function(e) {
+		clickedTab = e.target.innerHTML;
+
+		//right mouse click, closes it
+		if (e.ctrlKey && clickedTab != 'Main') {
+			closeChatTab(clickedTab);
+			return ;
+		}
+
+		$(e.target).css({fontWeight: "normal"});
+
+		switchChatTabs(clickedTab);
+	};
+
+	var nameClick = function(e) {
+		switchChatTabs(e.target.innerHTML);
 	};
 
 	var scrollBottom = function(divElement) {
