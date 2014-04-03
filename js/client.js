@@ -50,7 +50,7 @@ $(document).ready(function(){
 		}
 	});
 
-	var switchChatTabs = function(to) {
+	var switchChatTabs = function(to, sw) {
 		if (to == activeTab)
 			return ;
 
@@ -244,14 +244,15 @@ $(document).ready(function(){
 				case MSG_PRIVATE: {
 					// is this is my message or not ?
 					divID = msg.from == nickname ? msg.to : msg.from;
-					chatTab = $('#chat_tab_'+divID);
+					escapedName = divID.replace(/[^a-z0-9]/gmi, "_").replace(/\s+/g, "_");
+					chatTab = $('#chat_tab_'+escapedName);
 
 					if (chatTab.length) {
-						$('<p>['+timeStr+'] &lt;<strong>'+msg.from+'</strong>&gt;: '+msg.content+'</p>').appendTo('#pm_'+divID);
+						$('<p>['+timeStr+'] &lt;<strong>'+msg.from+'</strong>&gt;: '+msg.content+'</p>').appendTo('#pm_'+escapedName);
 						if (chatTab[0].innerHTML != activeTab)
 							chatTab.css({color: "red", fontWeight: "bold"});
 					} else {
-						$('#content').after('<div class="_pm_chat" id ="pm_'+divID+'"></div>');
+						$('#content').after('<div class="_pm_chat" id ="pm_'+escapedName+'"></div>');
 
 						if (activeTab == 'Main') {
 							$('#content').css({visibility: "none"});
@@ -259,10 +260,10 @@ $(document).ready(function(){
 							$('#pm_'+activeTab).css({display: "none"});
 						}
 
-						$('<button id="chat_tab_'+divID+'">'+divID+'</button>').appendTo('#tabs');
+						$('<button id="chat_tab_'+escapedName+'">'+divID+'</button>').appendTo('#tabs');
 						$('[data-active="1"]').attr('data-active', '0');
-						$('#chat_tab_'+divID).css({color: "red"}).attr('data-active', '1').on('click', tabClick);
-						$('<p>['+timeStr+'] &lt;<strong>'+msg.from+'</strong>&gt;: '+msg.content+'</p>').appendTo('#pm_'+divID);
+						$('#chat_tab_'+escapedName).css({color: "red"}).attr('data-active', '1').on('click', tabClick);
+						$('<p>['+timeStr+'] &lt;<strong>'+msg.from+'</strong>&gt;: '+msg.content+'</p>').appendTo('#pm_'+escapedName);
 
 						activeTab = divID;
 					}
