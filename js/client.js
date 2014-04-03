@@ -37,7 +37,8 @@ $(document).ready(function(){
 	var hasEvent = false;
 	var unreadMsgs = 0;
 	var activeTab = 'Main';
-	var appTitle = 'Morgue Chat - Iureș și Satane (Caterincă)'
+	var appTitle = 'Morgue Chat - Iureș și Satane (Caterincă)';
+	var nickname = '';
 
 	if (localStorage['nickname']) {
 		$('#login_input')[0].value = localStorage['nickname'];
@@ -115,6 +116,9 @@ $(document).ready(function(){
 	};
 
 	var nameClick = function(e) {
+		if (e.target.innerHTML == nickname)
+			return;
+
 		switchChatTabs(e.target.innerHTML);
 	};
 
@@ -135,7 +139,7 @@ $(document).ready(function(){
 
 	var startChat = function(nick) {
 		var chat = new WebSocket('ws://188.25.16.177:8001');
-		var nickname = nick;
+		nickname = nick;
 		document.chat = chat;
 
 		$('.server_offline').remove();
@@ -282,13 +286,14 @@ $(document).ready(function(){
 
 				case MSG_USER_LEFT: {
 					$('<p>['+timeStr+'] <strong>*SYSTEM*</strong> '+msg.content+' has left Chat! </p>').appendTo("#content");
+					escapedNickname = msg.content.replace(/[^a-z0-9]/gmi, "_").replace(/\s+/g, "_");
 
-					openedTab = $('#chat_tab_'+msg.content);
+					openedTab = $('#chat_tab_'+escapedNickname);
 
 					if (openedTab.length) {
 						openedTab.css({color: 'grey'});
 						openedTab.attr('data-unavailable', '1');
-						$('<p>['+timeStr+'] <strong>*SYSTEM*</strong> '+msg.content+' has left Chat! </p>').appendTo('#pm_'+msg.content);
+						$('<p>['+timeStr+'] <strong>*SYSTEM*</strong> '+msg.content+' has left Chat! </p>').appendTo('#pm_'+escapedNickname);
 					}
 
 					scrollBottom($('#content'));
