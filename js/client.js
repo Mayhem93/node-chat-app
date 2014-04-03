@@ -33,21 +33,26 @@ $(document).ready(function(){
 
 	const DENY_REASON_IN_USE = 0;	//nickname is already in use
 
+	const GENDER_MALE = 0;
+	const GENDER_FEMALE = 1;
+	const GENDER_UNK = 2;
+
 	//used for the input message
 	var hasEvent = false;
 	var unreadMsgs = 0;
 	var activeTab = 'Main';
 	var appTitle = 'Morgue Chat - Iureș și Satane (Caterincă)';
 	var nickname = '';
+	var gender = -1;
 
-	if (localStorage['nickname']) {
-		$('#login_input')[0].value = localStorage['nickname'];
-	}
+	$('#login_input')[0].value = localStorage['nickname'] || '';
+	$('#gender_input')[0].value = localStorage['gender'] || -1;
 
 	$("#login_input").focus().on("keypress", function(e){
 		if (e.which == 13 && this.value.length >= 3) {
-			startChat(this.value);
-			localStorage['nickname'] = this.value;
+			gender = localStorage['gender'] = $('#gender_input')[0].value;
+			nickname = localStorage['nickname'] = this.value;
+			startChat();
 		}
 	});
 
@@ -137,9 +142,8 @@ $(document).ready(function(){
 
 	$('#chat_tab_Main').on('click', tabClick);
 
-	var startChat = function(nick) {
-		var chat = new WebSocket('ws://188.25.16.177:8001');
-		nickname = nick;
+	var startChat = function() {
+		var chat = new WebSocket('ws://localhost:8001');
 		document.chat = chat;
 
 		$('.server_offline').remove();
@@ -222,9 +226,32 @@ $(document).ready(function(){
 					$('#user_list > span')[0].innerHTML = "&lt;Userlist ("+msg.content.length+")&gt;";
 
 					for(i in msg.content) {
-						$('<div class="user"><p>'+msg.content[i]+'</p></div>').appendTo('#user_list');
+						image = null;
 
-						if (msg.content[i] !== nickname)
+						switch(msg.content[i].gender) {
+							case GENDER_MALE: {
+								image = '<img src="user_male.png">';
+
+								break;
+							}
+
+							case GENDER_FEMALE: {
+								image = '<img src="user_female.png">';
+
+								break;
+							}
+
+							case GENDER_UNK:
+							default: {
+								image = '<img src="user_unk.png">';
+
+								break;
+							}
+						}
+
+						$('<div class="user">'+image+'<p>'+msg.content[i].nickname+'</p></div>').appendTo('#user_list');
+
+						if (msg.content[i].nickname !== nickname)
 							$('#user_list').children('div').on('click', nameClick);
 					}
 
@@ -272,7 +299,7 @@ $(document).ready(function(){
 						activeTab = divID;
 					}
 
-					scrollBottom($('#pm_'+divID));
+					scrollBottom($('#pm_'+escapedName));
 
 					break;
 				}
@@ -343,7 +370,7 @@ $(document).ready(function(){
 			clearTimeout(loadingTimeout);
 			$("#loading_img, #login, .reconect").remove();
 			escapedNickname = escape(nickname);
-			chat.send('{"type": 0, "content": "'+escapedNickname+'"}');
+			chat.send('{"type": 0, "content": { "name": "'+escapedNickname+'", "gender": "'+gender+'"} }');
 		};
 
 		chat.onclose = function(ev){
@@ -365,7 +392,7 @@ $(document).ready(function(){
 						});
 					}
 
-					scrollBottom();
+					scrollBottom($('#content'));
 				}
 
 			}
