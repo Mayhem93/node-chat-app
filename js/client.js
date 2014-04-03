@@ -48,13 +48,21 @@ $(document).ready(function(){
 	$('#login_input')[0].value = localStorage['nickname'] || '';
 	$('#gender_input')[0].value = localStorage['gender'] || -1;
 
-	$("#login_input").focus().on("keypress", function(e){
-		if (e.which == 13 && this.value.length >= 3) {
+	var enterChatAction = function() {
+		n = $("#login_input")[0].value;
+		if (n.length >= 3) {
 			gender = localStorage['gender'] = $('#gender_input')[0].value;
-			nickname = localStorage['nickname'] = this.value;
+			nickname = localStorage['nickname'] = n;
 			startChat();
 		}
+	};
+
+	$("#login_input").focus().on("keypress", function(e){
+		if (e.which == 13)
+			enterChatAction();
 	});
+
+	$("#login_enter").on("click", enterChatAction);
 
 	var switchChatTabs = function(to, sw) {
 		if (to == activeTab)
@@ -143,7 +151,7 @@ $(document).ready(function(){
 	$('#chat_tab_Main').on('click', tabClick);
 
 	var startChat = function() {
-		var chat = new WebSocket('ws://localhost:8001');
+		var chat = new WebSocket('ws://188.25.16.177:8001');
 		document.chat = chat;
 
 		$('.server_offline').remove();
