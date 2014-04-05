@@ -176,7 +176,9 @@ $(document).ready(function(){
 						return;
 					}
 
-					if ($('#chat_tab_'+activeTab).attr('data-unavailable') == '1') {
+					escapedName = activeTab.replace(/[^a-z0-9]/gmi, "_").replace(/\s+/g, "_");
+
+					if ($('#chat_tab_'+escapedName).attr('data-unavailable') == '1') {
 						this.value = '';
 						return;
 					}
@@ -184,7 +186,7 @@ $(document).ready(function(){
 					escapedMsg = escape(this.value);
 					escapedNickname = escape(nickname);
 
-					if (activeTab == 'Main') {
+					if (escapedName == 'Main') {
 						document.chat.send('{"type": 1, "content": "'+escapedMsg+'", "from": "'+escapedNickname+'"}');
 					} else {
 						document.chat.send('{"type": 10, "content": "'+escapedMsg+'", "from": "'+escapedNickname+'", "to": "'+activeTab+'"}');
