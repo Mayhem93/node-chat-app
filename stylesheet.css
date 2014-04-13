@@ -157,6 +157,10 @@ div#user_list > span {
 	padding-bottom: 15px;
 }
 
+span.name_highlight {
+	background-color: darkblue;
+}
+
 div.user {
 	display: block;
 	height: 20px;

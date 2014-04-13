@@ -44,6 +44,9 @@ $(document).ready(function(){
 	var appTitle = 'Morgue Chat - Iureș și Satane (Caterincă)';
 	var nickname = '';
 	var gender = -1;
+	var usersArray = [];
+
+	document.usersArray = usersArray;
 
 	$('#login_input')[0].value = localStorage['nickname'] || '';
 	$('#gender_input')[0].value = localStorage['gender'] || -1;
@@ -135,6 +138,29 @@ $(document).ready(function(){
 		switchChatTabs(e.target.innerHTML);
 	};
 
+	var highLightNickNames = function(text) {
+		auxText = text;
+		for(i in usersArray) {
+			found = auxText.search(usersArray[i]);
+
+			if (found !== -1) {
+				nameStart = found;
+				nameEnd = usersArray[i].length + 1;
+
+				if (nameEnd === -1)
+					nameEnd = usersArray[i].length;
+
+				firstPart = auxText.slice(0, nameStart);
+				lastPart = auxText.slice(nameEnd, usersArray[i].length);
+				link = auxText.slice(nameStart, nameEnd);
+
+				auxText = firstPart+'<span class="name_highlight">'+usersArray[i]+'</span>'+lastPart;
+			}
+		}
+
+		return auxText;
+	};
+
 	var scrollBottom = function(divElement) {
 		contentDiv = divElement[0];
 
@@ -221,6 +247,10 @@ $(document).ready(function(){
 				}
 			}
 
+			if ([MSG_TEXT, MSG_PRIVATE].indexOf(msg.type) !== -1) {
+				msg.content = highLightNickNames(msg.content);
+			}
+
 			switch(msg.type) {
 				case MSG_HELLO: {
 					$('<p>['+timeStr+'] <strong>'+msg.content+'</strong></p>').appendTo("#content");
@@ -235,8 +265,11 @@ $(document).ready(function(){
 
 					$('#user_list > span')[0].innerHTML = "&lt;Userlist ("+msg.content.length+")&gt;";
 
+					usersArray = [];
+
 					for(i in msg.content) {
 						image = null;
+						usersArray.push(msg.content[i].nickname);
 
 						switch(msg.content[i].gender) {
 							case GENDER_MALE: {
@@ -264,6 +297,13 @@ $(document).ready(function(){
 						if (msg.content[i].nickname !== nickname)
 							$('#user_list').children('div').on('click', nameClick);
 					}
+
+					$("#message_input").asuggest(usersArray, {
+						'minChunkSize': 1,
+						'delimiters': ' \n',
+						'autoComplete': false,
+						'cycleOnTab': true
+					});
 
 					break;
 				}
@@ -333,6 +373,9 @@ $(document).ready(function(){
 						$('<p>['+timeStr+'] <strong>*SYSTEM*</strong> '+msg.content+' has left Chat! </p>').appendTo('#pm_'+escapedNickname);
 					}
 
+					idx = usersArray.indexOf(msg.content);
+					delete usersArray[idx];
+
 					scrollBottom($('#content'));
 
 					break;
@@ -348,6 +391,8 @@ $(document).ready(function(){
 						openedTab.attr('data-unavailable', '0');
 						$('<p>['+timeStr+'] <strong>*SYSTEM*</strong> '+msg.content+' has entered Chat! </p>').appendTo('#pm_'+msg.content);
 					}
+
+					usersArray.push(msg.content);
 
 					scrollBottom($('#content'));
 
