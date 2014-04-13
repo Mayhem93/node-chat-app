@@ -145,14 +145,14 @@ $(document).ready(function(){
 
 			if (found !== -1) {
 				nameStart = found;
-				nameEnd = usersArray[i].length + 1;
+				nameEnd = auxText.indexOf(' ', nameStart+1);
 
 				if (nameEnd === -1)
 					nameEnd = usersArray[i].length;
 
 				firstPart = auxText.slice(0, nameStart);
-				lastPart = auxText.slice(nameEnd, usersArray[i].length);
-				link = auxText.slice(nameStart, nameEnd);
+				lastPart = auxText.slice(nameEnd, auxText.length);
+				console.log(nameEnd, usersArray[i].length, lastPart);
 
 				auxText = firstPart+'<span class="name_highlight">'+usersArray[i]+'</span>'+lastPart;
 			}
@@ -177,7 +177,7 @@ $(document).ready(function(){
 	$('#chat_tab_Main').on('click', tabClick);
 
 	var startChat = function() {
-		var chat = new WebSocket('ws://188.25.16.177:8001');
+		var chat = new WebSocket('ws://localhost:8001');
 		document.chat = chat;
 
 		$('.server_offline').remove();
