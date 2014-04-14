@@ -45,6 +45,7 @@ $(document).ready(function(){
 	var nickname = '';
 	var gender = -1;
 	var usersArray = [];
+	var serverAddress = 'ws://localhost:8001';
 
 	document.usersArray = usersArray;
 
@@ -148,7 +149,7 @@ $(document).ready(function(){
 				nameEnd = auxText.indexOf(' ', nameStart+1);
 
 				if (nameEnd === -1)
-					nameEnd = usersArray[i].length;
+					nameEnd = nameStart + usersArray[i].length;
 
 				firstPart = auxText.slice(0, nameStart);
 				lastPart = auxText.slice(nameEnd, auxText.length);
@@ -177,7 +178,7 @@ $(document).ready(function(){
 	$('#chat_tab_Main').on('click', tabClick);
 
 	var startChat = function() {
-		var chat = new WebSocket('ws://localhost:8001');
+		var chat = new WebSocket(serverAddress);
 		document.chat = chat;
 
 		$('.server_offline').remove();
@@ -302,7 +303,8 @@ $(document).ready(function(){
 						'minChunkSize': 1,
 						'delimiters': ' \n',
 						'autoComplete': false,
-						'cycleOnTab': true
+						'cycleOnTab': true,
+						'ignoreCase': true
 					});
 
 					break;
