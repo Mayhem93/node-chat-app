@@ -96,6 +96,8 @@ $(document).ready(function(){
 				$('#pm_'+ escapedName).css({display: 'block'});
 		}
 		activeTab = to;
+
+		scrollBottom($('#pm_'+escapedName));
 	};
 
 	var closeChatTab = function(tab) {
@@ -146,7 +148,7 @@ $(document).ready(function(){
 
 			if (found !== -1) {
 				nameStart = found;
-				nameEnd = auxText.indexOf(' ', nameStart+1);
+				nameEnd = nameStart + usersArray[i].length;
 
 				if (nameEnd === -1)
 					nameEnd = nameStart + usersArray[i].length;
@@ -304,7 +306,7 @@ $(document).ready(function(){
 						'delimiters': ' \n',
 						'autoComplete': false,
 						'cycleOnTab': true,
-						'ignoreCase': true
+						'ignoreCase': false
 					});
 
 					break;
