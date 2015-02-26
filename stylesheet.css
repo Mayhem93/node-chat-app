@@ -1,3 +1,8 @@
+@font-face {
+	font-family: DroidSans;
+	src: url(DroidSansMono-webfont.woff);
+}
+
 html {
 	height: 100%;
 	overflow: hidden;
@@ -8,10 +13,10 @@ input, button {
 }
 
 body {
-	font-family: monospace;
+	font-family: DroidSans;
 	background-color: black;
 	color: white;
-	font-size: 1.3em;
+	font-size: 0.9em;
 	height: 100%;
 	margin: 0;
 	background-image: url('background.jpg');
